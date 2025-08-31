@@ -2,7 +2,7 @@ let html5QrCode;
 
 document.getElementById("btnCam").addEventListener("click", async () => {
   const readerElem = document.getElementById("reader");
-  readerElem.style.display = "block"; // mostrar el recuadro
+  readerElem.style.display = "block";
 
   html5QrCode = new Html5Qrcode("reader");
 
