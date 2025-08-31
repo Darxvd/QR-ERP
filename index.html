@@ -8,15 +8,15 @@
   <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 </head>
 <body>
-  <h1>Registro de Asistencia</h1>
-  <p>Presione el botón para abrir la cámara y escanear el QR</p>
+  <div class="container">
+    <h1>📋 Registro de Asistencia</h1>
+    <p>Haz clic en el botón para escanear tu código QR</p>
 
-  <button id="btnScan">📷 Escanear QR</button>
-
-  <!-- Contenedor donde se abrirá la cámara -->
-  <div id="reader" style="width:300px; margin:auto; margin-top:20px;"></div>
-
-  <div id="resultado"></div>
+    <button id="btn-scan">📷 Escanear QR</button>
+    
+    <div id="reader"></div>
+    <div id="resultado"></div>
+  </div>
 
   <script src="js/script.js"></script>
 </body>

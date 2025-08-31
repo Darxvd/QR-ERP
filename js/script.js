@@ -1,39 +1,28 @@
-let html5QrCode;
+document.getElementById("btn-scan").addEventListener("click", iniciarScanner);
 
-document.getElementById("btnScan").addEventListener("click", () => {
-  const readerElementId = "reader";
+async function iniciarScanner() {
+  const readerDiv = document.getElementById("reader");
+  readerDiv.innerHTML = ""; // limpiar antes de usar
 
-  if (!html5QrCode) {
-    html5QrCode = new Html5Qrcode(readerElementId);
-  }
-
-  // iniciar cámara trasera (environment) si está disponible
-  Html5Qrcode.getCameras().then(devices => {
-    if (devices && devices.length) {
-      let cameraId = devices[0].id;
-      // si hay más de una cámara, usar la trasera
-      if (devices.length > 1) {
-        const backCam = devices.find(d => d.label.toLowerCase().includes("back"));
-        if (backCam) cameraId = backCam.id;
+  const html5QrCode = new Html5Qrcode("reader");
+  
+  try {
+    await html5QrCode.start(
+      { facingMode: "environment" }, // cámara trasera
+      { fps: 10, qrbox: 250 },
+      (decodedText) => {
+        document.getElementById("resultado").innerHTML = `<em>QR detectado: ${decodedText}</em>`;
+        consultarAPI(decodedText);
+        html5QrCode.stop(); // detener después de leer
+      },
+      (errorMessage) => {
+        // Se ignoran errores de lectura
       }
-
-      html5QrCode.start(
-        cameraId,
-        { fps: 10, qrbox: 250 },
-        decodedText => {
-          document.getElementById("resultado").innerHTML = `<em>QR detectado: ${decodedText}</em>`;
-          consultarAPI(decodedText);
-          html5QrCode.stop(); // detener cámara tras leer
-        },
-        errorMessage => {
-          // fallos de lectura se ignoran
-        }
-      );
-    }
-  }).catch(err => {
-    document.getElementById("resultado").innerHTML = `<span class="error">❌ Error al acceder a la cámara: ${err}</span>`;
-  });
-});
+    );
+  } catch (err) {
+    document.getElementById("resultado").innerHTML = `<span class="error">Error al iniciar cámara: ${err}</span>`;
+  }
+}
 
 async function consultarAPI(dni) {
   try {
