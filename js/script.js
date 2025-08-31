@@ -1,6 +1,9 @@
 let html5QrCode;
 
 document.getElementById("btnCam").addEventListener("click", async () => {
+  const readerElem = document.getElementById("reader");
+  readerElem.style.display = "block"; // mostrar el recuadro
+
   html5QrCode = new Html5Qrcode("reader");
 
   try {
@@ -11,7 +14,7 @@ document.getElementById("btnCam").addEventListener("click", async () => {
         document.getElementById("resultado").innerHTML =
           `<em>QR detectado: ${decodedText}</em>`;
         consultarAPI(decodedText);
-        html5QrCode.stop(); // detener después de leer
+        html5QrCode.stop(); // detener tras primer QR
       }
     );
   } catch (err) {
@@ -22,7 +25,9 @@ document.getElementById("btnCam").addEventListener("click", async () => {
 
 async function consultarAPI(dni) {
   try {
-    const response = await fetch(`https://qrescueladerefri-dhh3cda4hggacgam.brazilsouth-01.azurewebsites.net/checkin/${dni}`);
+    const response = await fetch(
+      `https://qrescueladerefri-dhh3cda4hggacgam.brazilsouth-01.azurewebsites.net/checkin/${dni}`
+    );
     if (!response.ok) throw new Error("Participante no encontrado");
 
     const data = await response.json();
