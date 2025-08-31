@@ -1,12 +1,39 @@
-function onScanSuccess(decodedText, decodedResult) {
-  document.getElementById("resultado").innerHTML = `<em>QR detectado: ${decodedText}</em>`;
-  consultarAPI(decodedText);
-  html5QrcodeScanner.clear();
-}
+let html5QrCode;
 
-function onScanFailure(error) {
-  // Ignorar errores de escaneo
-}
+document.getElementById("btnScan").addEventListener("click", () => {
+  const readerElementId = "reader";
+
+  if (!html5QrCode) {
+    html5QrCode = new Html5Qrcode(readerElementId);
+  }
+
+  // iniciar cámara trasera (environment) si está disponible
+  Html5Qrcode.getCameras().then(devices => {
+    if (devices && devices.length) {
+      let cameraId = devices[0].id;
+      // si hay más de una cámara, usar la trasera
+      if (devices.length > 1) {
+        const backCam = devices.find(d => d.label.toLowerCase().includes("back"));
+        if (backCam) cameraId = backCam.id;
+      }
+
+      html5QrCode.start(
+        cameraId,
+        { fps: 10, qrbox: 250 },
+        decodedText => {
+          document.getElementById("resultado").innerHTML = `<em>QR detectado: ${decodedText}</em>`;
+          consultarAPI(decodedText);
+          html5QrCode.stop(); // detener cámara tras leer
+        },
+        errorMessage => {
+          // fallos de lectura se ignoran
+        }
+      );
+    }
+  }).catch(err => {
+    document.getElementById("resultado").innerHTML = `<span class="error">❌ Error al acceder a la cámara: ${err}</span>`;
+  });
+});
 
 async function consultarAPI(dni) {
   try {
@@ -22,15 +49,4 @@ async function consultarAPI(dni) {
   } catch (error) {
     document.getElementById("resultado").innerHTML = `<span class="error">${error.message}</span>`;
   }
-}
-
-try {
-  const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-  html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-} catch (err) {
-  document.getElementById("reader").innerHTML = `
-    <p style="color:red; font-weight:bold;">
-      ❌ No se detectó cámara disponible en este dispositivo.
-    </p>
-  `;
 }

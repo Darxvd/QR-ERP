@@ -5,13 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro de Asistencia QR</title>
   <link rel="stylesheet" href="css/styles.css">
-  <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.bundle.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 </head>
 <body>
   <h1>Registro de Asistencia</h1>
-  <p>Escanee el QR con la cámara</p>
+  <p>Presione el botón para abrir la cámara y escanear el QR</p>
 
-  <div id="reader"></div>
+  <button id="btnScan">📷 Escanear QR</button>
+
+  <!-- Contenedor donde se abrirá la cámara -->
+  <div id="reader" style="width:300px; margin:auto; margin-top:20px;"></div>
 
   <div id="resultado"></div>
 
