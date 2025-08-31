@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registro de Asistencia QR</title>
-  <link rel="stylesheet" href="css/styles.css">
-  <!-- Librería QR -->
-  <script src="https://unpkg.com/html5-qrcode"></script>
+  <title>Lector QR</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Librería del lector de QR -->
+  <script src="https://unpkg.com/html5-qrcode" defer></script>
+  <!-- Tu JS -->
+  <script src="script.js" defer></script>
 </head>
 <body>
-  <h1>Registro de Asistencia</h1>
-  <p>Escanee el QR con la cámara</p>
+  <div class="container">
+    <h1>Control de Asistencia con QR</h1>
 
-  <button id="btnCam">📷 Abrir cámara</button>
-  <div id="reader" style="display:none;"></div>
+    <button id="btnCam">📷 Iniciar Cámara</button>
 
-  <div id="resultado"></div>
+    <div id="reader" style="width: 300px; height: 300px; display:none; margin:20px auto;"></div>
 
-  <script src="js/script.js"></script>
+    <div id="resultado" class="box"></div>
+    <div id="respuesta" class="box"></div>
+  </div>
 </body>
 </html>

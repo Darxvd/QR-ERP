@@ -11,10 +11,15 @@ document.getElementById("btnCam").addEventListener("click", async () => {
       { facingMode: "environment" }, // cámara trasera
       { fps: 10, qrbox: 250 },
       (decodedText) => {
+        // Mostrar el QR leído
         document.getElementById("resultado").innerHTML =
           `<em>QR detectado: ${decodedText}</em>`;
+
+        // Consultar backend
         consultarAPI(decodedText);
-        html5QrCode.stop(); // detener tras primer QR
+
+        // detener tras primer QR
+        html5QrCode.stop();
       }
     );
   } catch (err) {
@@ -31,13 +36,16 @@ async function consultarAPI(dni) {
     if (!response.ok) throw new Error("Participante no encontrado");
 
     const data = await response.json();
-    document.getElementById("resultado").innerHTML = `
+
+    // Mostrar la respuesta del backend
+    document.getElementById("respuesta").innerHTML = `
       <strong>Nombre:</strong> ${data.nombre}<br>
-      <strong>Mensaje:</strong> <span class="${data.asistio ? 'success' : 'error'}">${data.mensaje}</span><br>
+      <strong>Mensaje:</strong> 
+        <span class="${data.asistio ? 'success' : 'error'}">${data.mensaje}</span><br>
       <strong>Asistencia:</strong> ${data.asistio ? "✅ Sí" : "❌ No"}
     `;
   } catch (error) {
-    document.getElementById("resultado").innerHTML =
+    document.getElementById("respuesta").innerHTML =
       `<span class="error">${error.message}</span>`;
   }
 }
