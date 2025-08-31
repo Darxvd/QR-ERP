@@ -1,23 +1,39 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registro de Asistencia QR</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <title>Prueba QR</title>
   <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 </head>
-<body>
-  <div class="container">
-    <h1>📋 Registro de Asistencia</h1>
-    <p>Haz clic en el botón para escanear tu código QR</p>
+<body style="text-align: center; font-family: Arial, sans-serif; padding: 20px;">
 
-    <button id="btn-scan">📷 Escanear QR</button>
-    
-    <div id="reader"></div>
-    <div id="resultado"></div>
-  </div>
+  <h1>Prueba Escáner QR</h1>
+  <button onclick="startScanner()">📷 Abrir cámara</button>
 
-  <script src="js/script.js"></script>
+  <div id="reader" style="width:300px; margin:20px auto;"></div>
+  <div id="resultado" style="margin-top:20px; font-size:18px; font-weight:bold;"></div>
+
+  <script>
+    async function startScanner() {
+      const html5QrCode = new Html5Qrcode("reader");
+
+      try {
+        await html5QrCode.start(
+          { facingMode: "environment" }, // usa cámara trasera
+          { fps: 10, qrbox: 250 },
+          (decodedText) => {
+            document.getElementById("resultado").innerHTML =
+              "✅ QR detectado: " + decodedText;
+            html5QrCode.stop(); // detiene la cámara después de leer
+          }
+        );
+      } catch (err) {
+        console.error("Error al iniciar cámara:", err);
+        document.getElementById("resultado").innerHTML =
+          "❌ No se pudo abrir la cámara";
+      }
+    }
+  </script>
 </body>
 </html>
