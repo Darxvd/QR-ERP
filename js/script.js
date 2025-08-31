@@ -5,10 +5,23 @@ async function iniciarScanner() {
   readerDiv.innerHTML = ""; // limpiar antes de usar
 
   const html5QrCode = new Html5Qrcode("reader");
-  
+
   try {
+    // Ver lista de cámaras disponibles
+    const devices = await Html5Qrcode.getCameras();
+
+    if (!devices || devices.length === 0) {
+      document.getElementById("resultado").innerHTML = `<span class="error">No se encontró cámara disponible.</span>`;
+      return;
+    }
+
+    // Si hay cámara trasera, usarla. Si no, usar la primera disponible.
+    const cameraId = devices.find(d => d.label.toLowerCase().includes("back"))
+      ? devices.find(d => d.label.toLowerCase().includes("back")).id
+      : devices[0].id;
+
     await html5QrCode.start(
-      { facingMode: "environment" }, // cámara trasera
+      { deviceId: { exact: cameraId } },
       { fps: 10, qrbox: 250 },
       (decodedText) => {
         document.getElementById("resultado").innerHTML = `<em>QR detectado: ${decodedText}</em>`;
@@ -16,7 +29,7 @@ async function iniciarScanner() {
         html5QrCode.stop(); // detener después de leer
       },
       (errorMessage) => {
-        // Se ignoran errores de lectura
+        // errores de lectura ignorados
       }
     );
   } catch (err) {
