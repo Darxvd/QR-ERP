@@ -8,17 +8,11 @@ document.getElementById("btnCam").addEventListener("click", async () => {
 
   try {
     await html5QrCode.start(
-      { facingMode: "environment" }, // cámara trasera
-      { fps: 10, qrbox: 250 },
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250, aspectRatio: 1 },
       (decodedText) => {
-        // Mostrar el QR leído
-        document.getElementById("resultado").innerHTML =
-          `<em>QR detectado: ${decodedText}</em>`;
-
-        // Consultar backend
+        document.getElementById("resultado").innerHTML = `<em>QR detectado: ${decodedText}</em>`;
         consultarAPI(decodedText);
-
-        // detener tras primer QR
         html5QrCode.stop();
       }
     );
@@ -37,11 +31,9 @@ async function consultarAPI(dni) {
 
     const data = await response.json();
 
-    // Mostrar la respuesta del backend
     document.getElementById("respuesta").innerHTML = `
       <strong>Nombre:</strong> ${data.nombre}<br>
-      <strong>Mensaje:</strong> 
-        <span class="${data.asistio ? 'success' : 'error'}">${data.mensaje}</span><br>
+      <strong>Mensaje:</strong> <span class="${data.asistio ? 'success' : 'error'}">${data.mensaje}</span><br>
       <strong>Asistencia:</strong> ${data.asistio ? "✅ Sí" : "❌ No"}
     `;
   } catch (error) {
