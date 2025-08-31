@@ -1,0 +1,31 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+  background: #f4f6f9;
+}
+
+h1 {
+  color: #2c3e50;
+}
+
+#reader {
+  width: 300px;
+  margin: auto;
+  margin-top: 20px;
+}
+
+#resultado {
+  margin-top: 20px;
+  font-size: 18px;
+}
+
+.success {
+  color: green;
+  font-weight: bold;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
