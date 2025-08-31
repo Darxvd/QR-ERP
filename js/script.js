@@ -5,7 +5,7 @@ function onScanSuccess(decodedText, decodedResult) {
 }
 
 function onScanFailure(error) {
-  // Ignorar errores para que siga intentando
+  // Ignorar errores de escaneo
 }
 
 async function consultarAPI(dni) {
@@ -24,9 +24,13 @@ async function consultarAPI(dni) {
   }
 }
 
-// 👇 ESTA PARTE es la que dibuja el botón de "Start Scanning"
-const html5QrcodeScanner = new Html5QrcodeScanner(
-  "reader",
-  { fps: 10, qrbox: 250 }
-);
-html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+try {
+  const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+  html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+} catch (err) {
+  document.getElementById("reader").innerHTML = `
+    <p style="color:red; font-weight:bold;">
+      ❌ No se detectó cámara disponible en este dispositivo.
+    </p>
+  `;
+}
