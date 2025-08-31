@@ -1,19 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Prueba Cámara Directa</title></head>
-<body style="text-align:center;padding:20px;">
-  <h1>Test Cámara iOS</h1>
-  <button onclick="testCam()">Abrir cámara sin librerías</button>
-  <video id="video" autoplay playsinline style="margin-top:20px;width:300px;"></video>
-  <script>
-    async function testCam() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-        document.getElementById("video").srcObject = stream;
-      } catch (err) {
-        alert("Error al acceder a la cámara: " + err);
-      }
-    }
-  </script>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Asistencia QR</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- Librería QR -->
+  <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+  <h1>Registro de Asistencia</h1>
+  <p>Escanee el QR con la cámara</p>
+
+  <button id="btnCam">📷 Abrir cámara</button>
+  <div id="reader"></div>
+
+  <div id="resultado"></div>
+
+  <script src="js/script.js"></script>
 </body>
 </html>

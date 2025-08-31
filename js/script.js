@@ -1,41 +1,24 @@
-document.getElementById("btn-scan").addEventListener("click", iniciarScanner);
+let html5QrCode;
 
-async function iniciarScanner() {
-  const readerDiv = document.getElementById("reader");
-  readerDiv.innerHTML = ""; // limpiar antes de usar
-
-  const html5QrCode = new Html5Qrcode("reader");
+document.getElementById("btnCam").addEventListener("click", async () => {
+  html5QrCode = new Html5Qrcode("reader");
 
   try {
-    // Ver lista de cámaras disponibles
-    const devices = await Html5Qrcode.getCameras();
-
-    if (!devices || devices.length === 0) {
-      document.getElementById("resultado").innerHTML = `<span class="error">No se encontró cámara disponible.</span>`;
-      return;
-    }
-
-    // Si hay cámara trasera, usarla. Si no, usar la primera disponible.
-    const cameraId = devices.find(d => d.label.toLowerCase().includes("back"))
-      ? devices.find(d => d.label.toLowerCase().includes("back")).id
-      : devices[0].id;
-
     await html5QrCode.start(
-      { deviceId: { exact: cameraId } },
+      { facingMode: "environment" }, // cámara trasera
       { fps: 10, qrbox: 250 },
       (decodedText) => {
-        document.getElementById("resultado").innerHTML = `<em>QR detectado: ${decodedText}</em>`;
+        document.getElementById("resultado").innerHTML =
+          `<em>QR detectado: ${decodedText}</em>`;
         consultarAPI(decodedText);
         html5QrCode.stop(); // detener después de leer
-      },
-      (errorMessage) => {
-        // errores de lectura ignorados
       }
     );
   } catch (err) {
-    document.getElementById("resultado").innerHTML = `<span class="error">Error al iniciar cámara: ${err}</span>`;
+    document.getElementById("resultado").innerHTML =
+      `<span class="error">No se pudo abrir la cámara: ${err}</span>`;
   }
-}
+});
 
 async function consultarAPI(dni) {
   try {
@@ -49,6 +32,7 @@ async function consultarAPI(dni) {
       <strong>Asistencia:</strong> ${data.asistio ? "✅ Sí" : "❌ No"}
     `;
   } catch (error) {
-    document.getElementById("resultado").innerHTML = `<span class="error">${error.message}</span>`;
+    document.getElementById("resultado").innerHTML =
+      `<span class="error">${error.message}</span>`;
   }
 }
