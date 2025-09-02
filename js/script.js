@@ -1,111 +1,108 @@
-let html5QrCode;
-let idDiaSeleccionado = null;
-let idEventoSeleccionado = null;
+const API_BASE = "http://qrescueladerefri-dhh3cda4hggacgam.brazilsouth-01.azurewebsites.net";
 
-// Seleccionar Día
-document.getElementById("btnSeleccionarDia").addEventListener("click", async () => {
+const diasSelect = document.getElementById("dias");
+const eventosSelect = document.getElementById("eventos");
+const btnScanner = document.getElementById("btnScanner");
+const preview = document.getElementById("preview");
+
+let diaSeleccionado = null;
+let eventoSeleccionado = null;
+let scanner = null;
+
+// 🔹 Cargar días desde el backend
+async function cargarDias() {
   try {
-    const res = await fetch("https://qrescueladerefri-dhh3cda4hggacgam.brazilsouth-01.azurewebsites.net/dias");
+    const res = await fetch(`${API_BASE}/dias`);
+    if (!res.ok) throw new Error("Error cargando días");
     const dias = await res.json();
 
-    const opciones = dias.map((d, i) => `${i + 1}. ${d.nombreDia} (${d.fecha})`).join("\n");
-    const elegido = prompt("Seleccione un día:\n\n" + opciones);
-
-    const index = parseInt(elegido) - 1;
-    if (!isNaN(index) && dias[index]) {
-      idDiaSeleccionado = dias[index].idDia;
-      document.getElementById("diaSeleccionado").textContent = "📅 Día: " + dias[index].nombreDia;
-      document.getElementById("btnSeleccionarEvento").disabled = false;
-    }
+    dias.forEach(d => {
+      const option = document.createElement("option");
+      option.value = d.idDia;
+      option.textContent = `${d.nombreDia} (${d.fecha})`;
+      diasSelect.appendChild(option);
+    });
   } catch (err) {
-    alert("Error cargando días: " + err);
-  }
-});
-
-// Seleccionar Evento
-document.getElementById("btnSeleccionarEvento").addEventListener("click", async () => {
-  if (!idDiaSeleccionado) return alert("Seleccione un día primero");
-
-  try {
-    const res = await fetch(`https://qrescueladerefri-dhh3cda4hggacgam.brazilsouth-01.azurewebsites.net/eventos/${idDiaSeleccionado}`);
-    const eventos = await res.json();
-
-    const opciones = eventos.map((e, i) => `${i + 1}. ${e.nombreEvento}`).join("\n");
-    const elegido = prompt("Seleccione un evento:\n\n" + opciones);
-
-    const index = parseInt(elegido) - 1;
-    if (!isNaN(index) && eventos[index]) {
-      idEventoSeleccionado = eventos[index].idEvento;
-      document.getElementById("eventoSeleccionado").textContent = "🎤 Evento: " + eventos[index].nombreEvento;
-      document.getElementById("btnScanner").disabled = false;
-    }
-  } catch (err) {
-    alert("Error cargando eventos: " + err);
-  }
-});
-
-// Escanear QR
-document.getElementById("btnScanner").addEventListener("click", async () => {
-  const readerElem = document.getElementById("reader");
-  readerElem.style.display = "block";
-
-  html5QrCode = new Html5Qrcode("reader");
-
-  try {
-    await html5QrCode.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: 250 },
-      (decodedText) => {
-        document.getElementById("resultado").innerHTML = `<em>QR detectado: ${decodedText}</em>`;
-        enviarCheckin(decodedText);
-        html5QrCode.stop();
-      }
-    );
-  } catch (err) {
-    document.getElementById("resultado").innerHTML =
-      `<span class="error">No se pudo abrir la cámara: ${err}</span>`;
-  }
-});
-
-// Enviar Check-in
-async function enviarCheckin(dni) {
-  if (!idEventoSeleccionado) {
-    alert("Seleccione un evento primero");
-    return;
-  }
-
-  try {
-    const res = await fetch(
-      `https://qrescueladerefri-dhh3cda4hggacgam.brazilsouth-01.azurewebsites.net/checkin/${dni}/${idEventoSeleccionado}`,
-      { method: "POST" }
-    );
-
-    if (!res.ok) throw new Error("Error: " + res.status);
-
-    const data = await res.json();
-
-    document.getElementById("respuesta").innerHTML = `
-      <strong>Participante:</strong> ${data.participante}<br>
-      <strong>Evento:</strong> ${data.evento}<br>
-      <span class="${data.mensaje.includes("ok") ? 'success' : 'error'}">${data.mensaje}</span>
-    `;
-  } catch (err) {
-    document.getElementById("respuesta").innerHTML = `<span class="error">${err.message}</span>`;
+    alert("Error al cargar días: " + err.message);
   }
 }
 
-// Borrar selección
-document.getElementById("btnBorrar").addEventListener("click", () => {
-  idDiaSeleccionado = null;
-  idEventoSeleccionado = null;
+// 🔹 Cuando cambia el día, cargar eventos
+diasSelect.addEventListener("change", async function () {
+  diaSeleccionado = this.value;
+  eventosSelect.innerHTML = `<option value="">-- Selecciona un evento --</option>`;
+  eventosSelect.disabled = true;
+  btnScanner.disabled = true;
 
-  document.getElementById("diaSeleccionado").textContent = "";
-  document.getElementById("eventoSeleccionado").textContent = "";
-  document.getElementById("btnSeleccionarEvento").disabled = true;
-  document.getElementById("btnScanner").disabled = true;
+  if (!diaSeleccionado) return;
 
-  document.getElementById("resultado").innerHTML = "";
-  document.getElementById("respuesta").innerHTML = "";
+  try {
+    const res = await fetch(`${API_BASE}/eventos/${diaSeleccionado}`);
+    if (!res.ok) throw new Error("Error cargando eventos");
+    const eventos = await res.json();
 
-  alert("Selección borrada");
+    eventos.forEach(e => {
+      const option = document.createElement("option");
+      option.value = e.idEvento;
+      option.textContent = e.nombreEvento;
+      eventosSelect.appendChild(option);
+    });
+
+    eventosSelect.disabled = false;
+  } catch (err) {
+    alert("Error al cargar eventos: " + err.message);
+  }
 });
+
+// 🔹 Cuando selecciona evento
+eventosSelect.addEventListener("change", function () {
+  eventoSeleccionado = this.value;
+  btnScanner.disabled = !eventoSeleccionado;
+});
+
+// 🔹 Escaneo QR
+btnScanner.addEventListener("click", function () {
+  if (!eventoSeleccionado) {
+    alert("Selecciona un evento primero");
+    return;
+  }
+
+  preview.style.display = "block";
+
+  if (!scanner) {
+    scanner = new Instascan.Scanner({ video: preview });
+    scanner.addListener("scan", async function (content) {
+      const dni = content.trim();
+      alert(`📷 QR detectado: ${dni}`);
+
+      try {
+        const res = await fetch(`${API_BASE}/checkin/${dni}/${eventoSeleccionado}`, {
+          method: "POST"
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          alert(`✅ Asistencia registrada: ${data.mensaje}`);
+        } else {
+          alert(`❌ Error: ${data.detail || "No se pudo registrar asistencia"}`);
+        }
+      } catch (err) {
+        alert("Error al registrar asistencia: " + err.message);
+      }
+    });
+  }
+
+  // Iniciar cámara
+  Instascan.Camera.getCameras().then(cameras => {
+    if (cameras.length > 0) {
+      scanner.start(cameras[0]); // Usa la primera cámara
+    } else {
+      alert("No se encontró cámara en este dispositivo");
+    }
+  }).catch(err => {
+    alert("Error accediendo a la cámara: " + err);
+  });
+});
+
+// Iniciar carga
+cargarDias();

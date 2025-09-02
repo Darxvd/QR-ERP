@@ -3,31 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lector QR Asistencia</title>
+  <title>Check-in Escuela de Refrigeración</title>
   <link rel="stylesheet" href="css/styles.css">
-  <script src="https://unpkg.com/html5-qrcode" defer></script>
-  <script src="js/script.js" defer></script>
+
+  <!-- Librería Instascan para leer QR con la cámara -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/instascan/1.0.0/instascan.min.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>Control de Asistencia</h1>
 
-    <!-- Botones -->
-    <button id="btnSeleccionarDia">📅 Seleccionar Día</button>
-    <p id="diaSeleccionado"></p>
+  <h2>Escuela de Refrigeración</h2>
 
-    <button id="btnSeleccionarEvento" disabled>🎤 Seleccionar Evento</button>
-    <p id="eventoSeleccionado"></p>
+  <!-- Lista de días -->
+  <label for="dias">Seleccionar Día:</label>
+  <select id="dias">
+    <option value="">-- Selecciona un día --</option>
+  </select>
 
-    <button id="btnScanner" disabled>📷 Escanear QR</button>
-    <button id="btnBorrar">🗑️ Borrar Selección</button>
+  <!-- Lista de eventos -->
+  <label for="eventos">Seleccionar Evento:</label>
+  <select id="eventos" disabled>
+    <option value="">-- Selecciona un evento --</option>
+  </select>
 
-    <!-- QR -->
-    <div id="reader" style="display:none;"></div>
+  <!-- Botón escanear QR -->
+  <button id="btnScanner" disabled>Escanear QR</button>
 
-    <!-- Resultados -->
-    <div id="resultado" class="box"></div>
-    <div id="respuesta" class="box"></div>
-  </div>
+  <!-- Video para mostrar la cámara -->
+  <video id="preview" style="width:100%; margin-top:20px; display:none;" autoplay></video>
+
+  <!-- Footer -->
+  <div class="footer">Elaborado por @francisco_vargas</div>
+
+  <script src="js/script.js"></script>
 </body>
 </html>
