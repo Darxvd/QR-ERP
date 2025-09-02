@@ -12,7 +12,7 @@ let diaSeleccionado = null;
 let eventoSeleccionado = null;
 let html5QrCode = null;
 
-// 🔹 Mostrar cualquier JSON de forma ordenada en el div
+// 🔹 Mostrar cualquier JSON de forma ordenada en el div, con true/false → Sí/No
 function mostrarRespuestaJSON(data) {
   if (!data || typeof data !== "object") {
     respuestaDiv.innerHTML = data;
@@ -24,14 +24,15 @@ function mostrarRespuestaJSON(data) {
 
   let html = "<ul style='padding-left:18px; margin:0'>";
   for (const [key, value] of Object.entries(data)) {
-    html += `<li><strong>${key}:</strong> ${value}</li>`;
+    let displayValue = value;
+    if (typeof value === "boolean") displayValue = value ? "Sí" : "No"; // ✅ convertir booleanos
+    html += `<li><strong>${key}:</strong> ${displayValue}</li>`;
   }
   html += "</ul>";
 
   respuestaDiv.innerHTML = html;
   respuestaDiv.style.display = "block";
 
-  // Determinar color según estado
   if (data.estado === "ok") {
     respuestaDiv.style.background = "#e6ffed";
     respuestaDiv.style.borderLeft = "4px solid #28a745";
@@ -92,7 +93,7 @@ eventosSelect.addEventListener("change", () => {
   btnScanner.disabled = !eventoSeleccionado;
 });
 
-// 🔹 Escanear QR
+// 🔹 Escanear QR (solo una vez)
 btnScanner.addEventListener("click", () => {
   if (!eventoSeleccionado) {
     mostrarRespuestaJSON({ estado: "error", mensaje: "Selecciona un evento primero" });
@@ -115,7 +116,7 @@ btnScanner.addEventListener("click", () => {
       } catch (err) {
         mostrarRespuestaJSON({ estado: "error", mensaje: `Error en check-in: ${err.message}` });
       } finally {
-        // ✅ Solo detener si existe
+        // ✅ Detener el escáner inmediatamente después del primer escaneo
         if (html5QrCode) {
           try {
             await html5QrCode.stop();
