@@ -12,37 +12,15 @@ let diaSeleccionado = null;
 let eventoSeleccionado = null;
 let html5QrCode = null;
 
-
-function mostrarRespuestaJSON(data) {
-  if (!data || typeof data !== "object") {
-    respuestaDiv.innerHTML = data;
-    respuestaDiv.style.display = "block";
-    respuestaDiv.style.background = "#eef6ff";
-    respuestaDiv.style.borderLeft = "4px solid #007bff";
-    return;
-  }
-
-  let html = "<ul style='padding-left:18px; margin:0'>";
-  for (const [key, value] of Object.entries(data)) {
-    let displayValue = value;
-
-    // ✅ Convertir booleanos y strings "true"/"false" a Sí/No
-    if (typeof value === "boolean") displayValue = value ? "Sí" : "No";
-    if (typeof value === "string" && (value.toLowerCase() === "true" || value.toLowerCase() === "false")) {
-      displayValue = value.toLowerCase() === "true" ? "Sí" : "No";
-    }
-
-    html += `<li><strong>${key}:</strong> ${displayValue}</li>`;
-  }
-  html += "</ul>";
-
-  respuestaDiv.innerHTML = html;
+// 🔹 Mostrar mensajes bonitos en el cuadro de respuesta
+function mostrarRespuesta(mensaje, tipo = "info") {
+  respuestaDiv.innerHTML = mensaje;
   respuestaDiv.style.display = "block";
 
-  if (data.estado === "ok") {
+  if (tipo === "ok") {
     respuestaDiv.style.background = "#e6ffed";
     respuestaDiv.style.borderLeft = "4px solid #28a745";
-  } else if (data.estado === "error") {
+  } else if (tipo === "error") {
     respuestaDiv.style.background = "#ffe6e6";
     respuestaDiv.style.borderLeft = "4px solid #dc3545";
   } else {
@@ -51,12 +29,26 @@ function mostrarRespuestaJSON(data) {
   }
 }
 
+// 🔹 Mostrar JSON bonito con true/false convertidos a Sí/No
+function mostrarRespuestaJSON(data) {
+  const convertido = {};
+  for (let key in data) {
+    if (typeof data[key] === "boolean") {
+      convertido[key] = data[key] ? "Sí" : "No";
+    } else {
+      convertido[key] = data[key];
+    }
+  }
+  mostrarRespuesta(`<strong>Respuesta del servidor:</strong><pre>${JSON.stringify(convertido, null, 2)}</pre>`, "ok");
+}
 
+// 🔹 Cargar días
 async function cargarDias() {
   try {
     const res = await fetch(`${API_BASE}/dias`);
     if (!res.ok) throw new Error("Error cargando días");
     const dias = await res.json();
+
     dias.forEach(d => {
       const option = document.createElement("option");
       option.value = d.idDia;
@@ -64,12 +56,13 @@ async function cargarDias() {
       diasSelect.appendChild(option);
     });
   } catch (err) {
-    mostrarRespuestaJSON({ estado: "error", mensaje: `Error al cargar días: ${err.message}` });
+    mostrarRespuesta("❌ Error al cargar días: " + err.message, "error");
   }
 }
 
-diasSelect.addEventListener("change", async () => {
-  diaSeleccionado = diasSelect.value;
+// 🔹 Cuando cambia día
+diasSelect.addEventListener("change", async function () {
+  diaSeleccionado = this.value;
   eventosSelect.innerHTML = `<option value="">-- Selecciona un evento --</option>`;
   eventosSelect.disabled = true;
   btnScanner.disabled = true;
@@ -80,59 +73,70 @@ diasSelect.addEventListener("change", async () => {
     const res = await fetch(`${API_BASE}/eventos/${diaSeleccionado}`);
     if (!res.ok) throw new Error("Error cargando eventos");
     const eventos = await res.json();
+
     eventos.forEach(e => {
       const option = document.createElement("option");
       option.value = e.idEvento;
       option.textContent = e.nombreEvento;
       eventosSelect.appendChild(option);
     });
+
     eventosSelect.disabled = false;
   } catch (err) {
-    mostrarRespuestaJSON({ estado: "error", mensaje: `Error al cargar eventos: ${err.message}` });
+    mostrarRespuesta("❌ Error al cargar eventos: " + err.message, "error");
   }
 });
 
-eventosSelect.addEventListener("change", () => {
-  eventoSeleccionado = eventosSelect.value;
+// 🔹 Cuando selecciona evento
+eventosSelect.addEventListener("change", function () {
+  eventoSeleccionado = this.value;
   btnScanner.disabled = !eventoSeleccionado;
 });
 
-btnScanner.addEventListener("click", () => {
+// 🔹 Botón Escanear QR
+btnScanner.addEventListener("click", function () {
   if (!eventoSeleccionado) {
-    mostrarRespuestaJSON({ estado: "error", mensaje: "Selecciona un evento primero" });
+    mostrarRespuesta("⚠️ Selecciona un evento primero", "error");
     return;
   }
 
   preview.style.display = "block";
   respuestaDiv.style.display = "none";
 
-  if (!html5QrCode) html5QrCode = new Html5Qrcode("preview");
+  if (!html5QrCode) {
+    html5QrCode = new Html5Qrcode("preview");
+  }
 
   html5QrCode.start(
-    { facingMode: "environment" },
+    { facingMode: "environment" }, // Cámara trasera
     { fps: 10, qrbox: { width: 250, height: 250 } },
     async content => {
       try {
-        const res = await fetch(`${API_BASE}/checkin/${content}/${eventoSeleccionado}`, { method: "POST" });
+        const url = `${API_BASE}/checkin/${content}/${eventoSeleccionado}`;
+        const res = await fetch(url, { method: "POST" });
         const data = await res.json();
+
+        // ✅ Mostrar JSON bonito con Sí/No
         mostrarRespuestaJSON(data);
-      } catch (err) {
-        mostrarRespuestaJSON({ estado: "error", mensaje: `Error en check-in: ${err.message}` });
-      } finally {
-        if (html5QrCode) {
-          try {
+
+        // ⏱ Esperar 3 segundos antes de cerrar el scanner
+        setTimeout(async () => {
+          if (html5QrCode) {
             await html5QrCode.stop();
-          } catch (_) {}
+            html5QrCode = null;
+          }
           preview.style.display = "none";
-          html5QrCode = null;
-        }
+        }, 3000);
+
+      } catch (err) {
+        mostrarRespuesta("❌ Error en check-in: " + err.message, "error");
       }
     },
     () => {} // ignorar errores de escaneo
   );
 });
 
-// 🔹 Botón Borrar
+// 🔹 Botón Borrar Selección
 btnBorrar.addEventListener("click", () => {
   diasSelect.value = "";
   eventosSelect.innerHTML = `<option value="">-- Selecciona un evento --</option>`;
