@@ -29,17 +29,15 @@ function mostrarRespuesta(mensaje, tipo = "info") {
   }
 }
 
-// 🔹 Mostrar JSON bonito con true/false convertidos a Sí/No
-function mostrarRespuestaJSON(data) {
-  const convertido = {};
+// 🔹 Mostrar JSON de forma legible, con true/false convertidos a Sí/No
+function mostrarRespuestaJSONLegible(data) {
+  let html = "<strong>Respuesta del servidor:</strong><br>";
   for (let key in data) {
-    if (typeof data[key] === "boolean") {
-      convertido[key] = data[key] ? "Sí" : "No";
-    } else {
-      convertido[key] = data[key];
-    }
+    let valor = data[key];
+    if (typeof valor === "boolean") valor = valor ? "Sí" : "No";
+    html += `<div><strong>${key}:</strong> ${valor}</div>`;
   }
-  mostrarRespuesta(`<strong>Respuesta del servidor:</strong><pre>${JSON.stringify(convertido, null, 2)}</pre>`, "ok");
+  mostrarRespuesta(html, "ok");
 }
 
 // 🔹 Cargar días
@@ -108,7 +106,7 @@ btnScanner.addEventListener("click", function () {
   }
 
   html5QrCode.start(
-    { facingMode: "environment" }, // Cámara trasera
+    { facingMode: "environment" },
     { fps: 10, qrbox: { width: 250, height: 250 } },
     async content => {
       try {
@@ -116,8 +114,8 @@ btnScanner.addEventListener("click", function () {
         const res = await fetch(url, { method: "POST" });
         const data = await res.json();
 
-        // ✅ Mostrar JSON bonito con Sí/No
-        mostrarRespuestaJSON(data);
+        // ✅ Mostrar JSON legible con Sí/No
+        mostrarRespuestaJSONLegible(data);
 
         // ⏱ Esperar 3 segundos antes de cerrar el scanner
         setTimeout(async () => {
