@@ -14,7 +14,7 @@ let html5QrCode = null;
 
 // 🔹 Mostrar mensajes bonitos en el cuadro de respuesta
 function mostrarRespuesta(mensaje, tipo = "info") {
-  respuestaDiv.textContent = mensaje;
+  respuestaDiv.innerHTML = mensaje; // Permitir formateo
   respuestaDiv.style.display = "block";
 
   if (tipo === "ok") {
@@ -103,7 +103,11 @@ btnScanner.addEventListener("click", function () {
         const res = await fetch(url, { method: "POST" });
         const data = await res.json();
 
-        mostrarRespuesta("✅ " + JSON.stringify(data), "ok");
+        // ✅ Mostrar JSON bonito en el cuadro
+        mostrarRespuesta(
+          `<strong>Respuesta del servidor:</strong><pre>${JSON.stringify(data, null, 2)}</pre>`,
+          "ok"
+        );
 
         await html5QrCode.stop();
         preview.style.display = "none";
@@ -112,7 +116,7 @@ btnScanner.addEventListener("click", function () {
         mostrarRespuesta("❌ Error en check-in: " + err.message, "error");
       }
     },
-    () => {} // errores de escaneo ignorados
+    () => {} // ignorar errores de escaneo
   );
 });
 
