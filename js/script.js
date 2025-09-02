@@ -1,3 +1,4 @@
+// ✅ Usar siempre HTTPS para evitar mixed content
 const API_BASE = "https://qrescueladerefri-dhh3cda4hggacgam.brazilsouth-01.azurewebsites.net";
 
 const diasSelect = document.getElementById("dias");
