@@ -112,11 +112,17 @@ btnScanner.addEventListener("click", () => {
         const res = await fetch(`${API_BASE}/checkin/${content}/${eventoSeleccionado}`, { method: "POST" });
         const data = await res.json();
         mostrarRespuestaJSON(data);
-        await html5QrCode.stop();
-        preview.style.display = "none";
-        html5QrCode = null;
       } catch (err) {
         mostrarRespuestaJSON({ estado: "error", mensaje: `Error en check-in: ${err.message}` });
+      } finally {
+        // ✅ Solo detener si existe
+        if (html5QrCode) {
+          try {
+            await html5QrCode.stop();
+          } catch (_) {}
+          preview.style.display = "none";
+          html5QrCode = null;
+        }
       }
     },
     () => {} // ignorar errores de escaneo
