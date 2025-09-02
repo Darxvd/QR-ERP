@@ -6,10 +6,28 @@ const eventosSelect = document.getElementById("eventos");
 const btnScanner = document.getElementById("btnScanner");
 const btnBorrar = document.getElementById("btnBorrar");
 const preview = document.getElementById("preview");
+const respuestaDiv = document.getElementById("respuesta");
 
 let diaSeleccionado = null;
 let eventoSeleccionado = null;
 let html5QrCode = null;
+
+// 🔹 Mostrar mensajes bonitos en el cuadro de respuesta
+function mostrarRespuesta(mensaje, tipo = "info") {
+  respuestaDiv.textContent = mensaje;
+  respuestaDiv.style.display = "block";
+
+  if (tipo === "ok") {
+    respuestaDiv.style.background = "#e6ffed";
+    respuestaDiv.style.borderLeft = "4px solid #28a745";
+  } else if (tipo === "error") {
+    respuestaDiv.style.background = "#ffe6e6";
+    respuestaDiv.style.borderLeft = "4px solid #dc3545";
+  } else {
+    respuestaDiv.style.background = "#eef6ff";
+    respuestaDiv.style.borderLeft = "4px solid #007bff";
+  }
+}
 
 // 🔹 Cargar días
 async function cargarDias() {
@@ -25,7 +43,7 @@ async function cargarDias() {
       diasSelect.appendChild(option);
     });
   } catch (err) {
-    alert("Error al cargar días: " + err.message);
+    mostrarRespuesta("❌ Error al cargar días: " + err.message, "error");
   }
 }
 
@@ -52,7 +70,7 @@ diasSelect.addEventListener("change", async function () {
 
     eventosSelect.disabled = false;
   } catch (err) {
-    alert("Error al cargar eventos: " + err.message);
+    mostrarRespuesta("❌ Error al cargar eventos: " + err.message, "error");
   }
 });
 
@@ -65,33 +83,36 @@ eventosSelect.addEventListener("change", function () {
 // 🔹 Botón Escanear QR
 btnScanner.addEventListener("click", function () {
   if (!eventoSeleccionado) {
-    alert("Selecciona un evento primero");
+    mostrarRespuesta("⚠️ Selecciona un evento primero", "error");
     return;
   }
 
   preview.style.display = "block";
+  respuestaDiv.style.display = "none";
+
   if (!html5QrCode) {
     html5QrCode = new Html5Qrcode("preview");
   }
 
   html5QrCode.start(
-    { facingMode: "environment" }, // Cámara trasera en móvil
-    { fps: 10, qrbox: 250 },
+    { facingMode: "environment" }, // Cámara trasera
+    { fps: 10, qrbox: { width: 250, height: 250 } },
     async content => {
       try {
         const url = `${API_BASE}/checkin/${content}/${eventoSeleccionado}`;
         const res = await fetch(url, { method: "POST" });
         const data = await res.json();
-        alert(JSON.stringify(data));
+
+        mostrarRespuesta("✅ " + JSON.stringify(data), "ok");
+
         await html5QrCode.stop();
         preview.style.display = "none";
+        html5QrCode = null;
       } catch (err) {
-        alert("Error en check-in: " + err.message);
+        mostrarRespuesta("❌ Error en check-in: " + err.message, "error");
       }
     },
-    errorMessage => {
-      // console.log("Error escaneo: ", errorMessage);
-    }
+    () => {} // errores de escaneo ignorados
   );
 });
 
@@ -102,6 +123,7 @@ btnBorrar.addEventListener("click", () => {
   eventosSelect.disabled = true;
   btnScanner.disabled = true;
   preview.style.display = "none";
+  respuestaDiv.style.display = "none";
 
   if (html5QrCode) {
     html5QrCode.stop().catch(() => {});

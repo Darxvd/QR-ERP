@@ -81,9 +81,21 @@ video {
 
 #preview {
   width: 100%;
-  max-width: 400px;
-  margin-top: 20px;
+  max-width: 300px; /* más reducido */
+  margin: 20px auto;
   border-radius: 12px;
   overflow: hidden;
   display: none;
 }
+
+#respuesta {
+  margin-top: 15px;
+  padding: 10px;
+  background: #eef6ff;
+  border-left: 4px solid #007bff;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #333;
+  display: none; /* oculto hasta que llegue algo */
+}
+
