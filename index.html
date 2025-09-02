@@ -5,18 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lector QR Asistencia</title>
   <link rel="stylesheet" href="css/styles.css">
-  <!-- Librería QR -->
   <script src="https://unpkg.com/html5-qrcode" defer></script>
   <script src="js/script.js" defer></script>
 </head>
 <body>
   <div class="container">
-    <h1>Control de Asistencia con QR</h1>
+    <h1>Control de Asistencia</h1>
 
-    <button id="btnCam">📷 Iniciar Cámara</button>
+    <!-- Botones -->
+    <button id="btnSeleccionarDia">📅 Seleccionar Día</button>
+    <p id="diaSeleccionado"></p>
 
-    <div id="reader"></div>
+    <button id="btnSeleccionarEvento" disabled>🎤 Seleccionar Evento</button>
+    <p id="eventoSeleccionado"></p>
 
+    <button id="btnScanner" disabled>📷 Escanear QR</button>
+    <button id="btnBorrar">🗑️ Borrar Selección</button>
+
+    <!-- QR -->
+    <div id="reader" style="display:none;"></div>
+
+    <!-- Resultados -->
     <div id="resultado" class="box"></div>
     <div id="respuesta" class="box"></div>
   </div>

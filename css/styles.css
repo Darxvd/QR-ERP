@@ -24,8 +24,10 @@ button {
   border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
-  margin-bottom: 20px;
+  margin: 8px 0;
   transition: background 0.3s;
+  display: block;
+  width: 100%;
 }
 
 button:hover {
@@ -64,16 +66,9 @@ button:hover {
 }
 
 /* Responsivo */
-@media (max-width: 768px) { /* tablet */
-  #reader {
-    max-width: 300px;
-    height: 300px;
-  }
+@media (max-width: 768px) {
+  #reader { max-width: 300px; height: 300px; }
 }
-
-@media (max-width: 480px) { /* móvil */
-  #reader {
-    max-width: 250px;
-    height: 250px;
-  }
+@media (max-width: 480px) {
+  #reader { max-width: 250px; height: 250px; }
 }
