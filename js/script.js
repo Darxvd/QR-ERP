@@ -1,4 +1,4 @@
-// ✅ Usar siempre HTTPS para evitar mixed content
+// ✅ Usar siempre HTTPS
 const API_BASE = "https://qrescueladerefri-dhh3cda4hggacgam.brazilsouth-01.azurewebsites.net";
 
 const diasSelect = document.getElementById("dias");
@@ -9,9 +9,9 @@ const preview = document.getElementById("preview");
 
 let diaSeleccionado = null;
 let eventoSeleccionado = null;
-let scanner = null;
+let html5QrCode = null;
 
-// 🔹 Cargar días desde el backend
+// 🔹 Cargar días
 async function cargarDias() {
   try {
     const res = await fetch(`${API_BASE}/dias`);
@@ -29,7 +29,7 @@ async function cargarDias() {
   }
 }
 
-// 🔹 Cuando cambia el día, cargar eventos
+// 🔹 Cuando cambia día
 diasSelect.addEventListener("change", async function () {
   diaSeleccionado = this.value;
   eventosSelect.innerHTML = `<option value="">-- Selecciona un evento --</option>`;
@@ -70,26 +70,29 @@ btnScanner.addEventListener("click", function () {
   }
 
   preview.style.display = "block";
-  scanner = new Instascan.Scanner({ video: preview });
+  if (!html5QrCode) {
+    html5QrCode = new Html5Qrcode("preview");
+  }
 
-  scanner.addListener("scan", async content => {
-    try {
-      const url = `${API_BASE}/checkin/${content}/${eventoSeleccionado}`;
-      const res = await fetch(url, { method: "POST" });
-      const data = await res.json();
-      alert(JSON.stringify(data));
-    } catch (err) {
-      alert("Error en check-in: " + err.message);
+  html5QrCode.start(
+    { facingMode: "environment" }, // Cámara trasera en móvil
+    { fps: 10, qrbox: 250 },
+    async content => {
+      try {
+        const url = `${API_BASE}/checkin/${content}/${eventoSeleccionado}`;
+        const res = await fetch(url, { method: "POST" });
+        const data = await res.json();
+        alert(JSON.stringify(data));
+        await html5QrCode.stop();
+        preview.style.display = "none";
+      } catch (err) {
+        alert("Error en check-in: " + err.message);
+      }
+    },
+    errorMessage => {
+      // console.log("Error escaneo: ", errorMessage);
     }
-  });
-
-  Instascan.Camera.getCameras().then(cameras => {
-    if (cameras.length > 0) {
-      scanner.start(cameras[0]);
-    } else {
-      alert("No se encontró cámara");
-    }
-  });
+  );
 });
 
 // 🔹 Botón Borrar Selección
@@ -100,9 +103,9 @@ btnBorrar.addEventListener("click", () => {
   btnScanner.disabled = true;
   preview.style.display = "none";
 
-  if (scanner) {
-    scanner.stop();
-    scanner = null;
+  if (html5QrCode) {
+    html5QrCode.stop().catch(() => {});
+    html5QrCode = null;
   }
 });
 
