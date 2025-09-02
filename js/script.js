@@ -12,7 +12,7 @@ let diaSeleccionado = null;
 let eventoSeleccionado = null;
 let html5QrCode = null;
 
-// 🔹 Mostrar cualquier JSON de forma ordenada en el div, con true/false → Sí/No
+
 function mostrarRespuestaJSON(data) {
   if (!data || typeof data !== "object") {
     respuestaDiv.innerHTML = data;
@@ -25,7 +25,13 @@ function mostrarRespuestaJSON(data) {
   let html = "<ul style='padding-left:18px; margin:0'>";
   for (const [key, value] of Object.entries(data)) {
     let displayValue = value;
-    if (typeof value === "boolean") displayValue = value ? "Sí" : "No"; // ✅ convertir booleanos
+
+    // ✅ Convertir booleanos y strings "true"/"false" a Sí/No
+    if (typeof value === "boolean") displayValue = value ? "Sí" : "No";
+    if (typeof value === "string" && (value.toLowerCase() === "true" || value.toLowerCase() === "false")) {
+      displayValue = value.toLowerCase() === "true" ? "Sí" : "No";
+    }
+
     html += `<li><strong>${key}:</strong> ${displayValue}</li>`;
   }
   html += "</ul>";
@@ -45,7 +51,7 @@ function mostrarRespuestaJSON(data) {
   }
 }
 
-// 🔹 Cargar días
+
 async function cargarDias() {
   try {
     const res = await fetch(`${API_BASE}/dias`);
@@ -62,7 +68,6 @@ async function cargarDias() {
   }
 }
 
-// 🔹 Cuando cambia día
 diasSelect.addEventListener("change", async () => {
   diaSeleccionado = diasSelect.value;
   eventosSelect.innerHTML = `<option value="">-- Selecciona un evento --</option>`;
@@ -87,13 +92,11 @@ diasSelect.addEventListener("change", async () => {
   }
 });
 
-// 🔹 Cuando selecciona evento
 eventosSelect.addEventListener("change", () => {
   eventoSeleccionado = eventosSelect.value;
   btnScanner.disabled = !eventoSeleccionado;
 });
 
-// 🔹 Escanear QR (solo una vez)
 btnScanner.addEventListener("click", () => {
   if (!eventoSeleccionado) {
     mostrarRespuestaJSON({ estado: "error", mensaje: "Selecciona un evento primero" });
@@ -116,7 +119,6 @@ btnScanner.addEventListener("click", () => {
       } catch (err) {
         mostrarRespuestaJSON({ estado: "error", mensaje: `Error en check-in: ${err.message}` });
       } finally {
-        // ✅ Detener el escáner inmediatamente después del primer escaneo
         if (html5QrCode) {
           try {
             await html5QrCode.stop();
