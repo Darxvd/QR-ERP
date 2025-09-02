@@ -11,25 +11,30 @@
 </head>
 <body>
 
-  <h2>Escuela de Refrigeración</h2>
+  <div class="container">
+    <h2>🎓 Escuela de Refrigeración</h2>
 
-  <!-- Lista de días -->
-  <label for="dias">Seleccionar Día:</label>
-  <select id="dias">
-    <option value="">-- Selecciona un día --</option>
-  </select>
+    <!-- Lista de días -->
+    <label for="dias">📅 Seleccionar Día:</label>
+    <select id="dias">
+      <option value="">-- Selecciona un día --</option>
+    </select>
 
-  <!-- Lista de eventos -->
-  <label for="eventos">Seleccionar Evento:</label>
-  <select id="eventos" disabled>
-    <option value="">-- Selecciona un evento --</option>
-  </select>
+    <!-- Lista de eventos -->
+    <label for="eventos">🎤 Seleccionar Evento:</label>
+    <select id="eventos" disabled>
+      <option value="">-- Selecciona un evento --</option>
+    </select>
 
-  <!-- Botón escanear QR -->
-  <button id="btnScanner" disabled>Escanear QR</button>
+    <!-- Botones -->
+    <div class="buttons">
+      <button id="btnScanner" disabled>📷 Escanear QR</button>
+      <button id="btnBorrar">🗑️ Borrar Selección</button>
+    </div>
 
-  <!-- Video para mostrar la cámara -->
-  <video id="preview" style="width:100%; margin-top:20px; display:none;" autoplay></video>
+    <!-- Video para mostrar la cámara -->
+    <video id="preview" autoplay></video>
+  </div>
 
   <!-- Footer -->
   <div class="footer">Elaborado por @francisco_vargas</div>

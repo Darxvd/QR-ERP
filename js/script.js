@@ -3,6 +3,7 @@ const API_BASE = "http://qrescueladerefri-dhh3cda4hggacgam.brazilsouth-01.azurew
 const diasSelect = document.getElementById("dias");
 const eventosSelect = document.getElementById("eventos");
 const btnScanner = document.getElementById("btnScanner");
+const btnBorrar = document.getElementById("btnBorrar");
 const preview = document.getElementById("preview");
 
 let diaSeleccionado = null;
@@ -60,7 +61,7 @@ eventosSelect.addEventListener("change", function () {
   btnScanner.disabled = !eventoSeleccionado;
 });
 
-// 🔹 Escaneo QR
+// 🔹 Botón Escanear QR
 btnScanner.addEventListener("click", function () {
   if (!eventoSeleccionado) {
     alert("Selecciona un evento primero");
@@ -68,41 +69,41 @@ btnScanner.addEventListener("click", function () {
   }
 
   preview.style.display = "block";
+  scanner = new Instascan.Scanner({ video: preview });
 
-  if (!scanner) {
-    scanner = new Instascan.Scanner({ video: preview });
-    scanner.addListener("scan", async function (content) {
-      const dni = content.trim();
-      alert(`📷 QR detectado: ${dni}`);
+  scanner.addListener("scan", async content => {
+    try {
+      const url = `${API_BASE}/checkin/${content}/${eventoSeleccionado}`;
+      const res = await fetch(url, { method: "POST" });
+      const data = await res.json();
+      alert(JSON.stringify(data));
+    } catch (err) {
+      alert("Error en check-in: " + err.message);
+    }
+  });
 
-      try {
-        const res = await fetch(`${API_BASE}/checkin/${dni}/${eventoSeleccionado}`, {
-          method: "POST"
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-          alert(`✅ Asistencia registrada: ${data.mensaje}`);
-        } else {
-          alert(`❌ Error: ${data.detail || "No se pudo registrar asistencia"}`);
-        }
-      } catch (err) {
-        alert("Error al registrar asistencia: " + err.message);
-      }
-    });
-  }
-
-  // Iniciar cámara
   Instascan.Camera.getCameras().then(cameras => {
     if (cameras.length > 0) {
-      scanner.start(cameras[0]); // Usa la primera cámara
+      scanner.start(cameras[0]);
     } else {
-      alert("No se encontró cámara en este dispositivo");
+      alert("No se encontró cámara");
     }
-  }).catch(err => {
-    alert("Error accediendo a la cámara: " + err);
   });
 });
 
-// Iniciar carga
+// 🔹 Botón Borrar Selección
+btnBorrar.addEventListener("click", () => {
+  diasSelect.value = "";
+  eventosSelect.innerHTML = `<option value="">-- Selecciona un evento --</option>`;
+  eventosSelect.disabled = true;
+  btnScanner.disabled = true;
+  preview.style.display = "none";
+
+  if (scanner) {
+    scanner.stop();
+    scanner = null;
+  }
+});
+
+// Inicializar
 cargarDias();

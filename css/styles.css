@@ -1,50 +1,83 @@
 body {
-  font-family: Arial, sans-serif;
-  padding: 20px;
-  background: #f9f9f9;
+  font-family: "Segoe UI", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #f0f4ff, #d9e6ff);
+  color: #333;
+}
+
+.container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 25px;
+  background: #fff;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
 }
 
 h2 {
   text-align: center;
-  color: #0164FF;
+  color: #004aad;
+  margin-bottom: 25px;
 }
 
 label {
-  font-weight: bold;
+  font-weight: 600;
   display: block;
-  margin-top: 20px;
+  margin-top: 15px;
+  color: #333;
 }
 
 select, button {
   width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border-radius: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  border-radius: 10px;
   border: 1px solid #ccc;
   font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+select:focus {
+  border-color: #004aad;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0,74,173,0.3);
 }
 
 button {
-  background: #0164FF;
+  background: #004aad;
   color: #fff;
   border: none;
   cursor: pointer;
-  margin-top: 20px;
+  font-weight: 600;
+}
+
+button:hover:not(:disabled) {
+  background: #0066ff;
+  transform: scale(1.02);
 }
 
 button:disabled {
-  background: #aaa;
+  background: #ccc;
   cursor: not-allowed;
 }
 
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
 #preview {
-  border: 2px solid #0164FF;
-  border-radius: 10px;
-  margin-top: 15px;
+  width: 100%;
+  margin-top: 20px;
+  border: 3px solid #004aad;
+  border-radius: 12px;
+  display: none;
 }
 
 .footer {
-  margin-top: 40px;
+  margin: 25px 0;
   text-align: center;
   font-size: 14px;
   color: #555;
