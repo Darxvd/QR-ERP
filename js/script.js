@@ -1,4 +1,4 @@
-const API_BASE = "http://qrescueladerefri-dhh3cda4hggacgam.brazilsouth-01.azurewebsites.net";
+const API_BASE = "https://qrescueladerefri-dhh3cda4hggacgam.brazilsouth-01.azurewebsites.net";
 
 const diasSelect = document.getElementById("dias");
 const eventosSelect = document.getElementById("eventos");
